@@ -5,81 +5,9 @@
 
 enum Direction { up = 0, right = 1, down = 2, left = 3 };
 
-class FrogActor {
-  public:
-  FrogActor() {
-    x_ = 0;
-    y_ = 0;
-  }
-
-  void moveRight(int offset) {
-    std::cout << "Move right call " << std::endl;
-    switch (direction_) {
-      case Direction::up:
-        x_ += offset;
-        direction_ = Direction::right;
-        break;
-      case Direction::right:
-        y_ -= offset;
-        direction_ = Direction::down;
-        break;
-      case Direction::down:
-        x_ -= offset;
-        direction_ = Direction::left;
-        break;
-      case Direction::left:
-        y_ += offset;
-        direction_ = Direction::up;
-        break;
-    }
-  }
-
-  void moveLeft(int offset) {
-    std::cout << "Move left call " << std::endl;
-    switch (direction_) {
-      case Direction::up:
-        x_ -= offset;
-        direction_ = Direction::left;
-        break;
-      case Direction::right:
-        y_ += offset;
-        direction_ = Direction::up;
-        break;
-      case Direction::down:
-        x_ += offset;
-        direction_ = Direction::right;
-        break;
-      case Direction::left:
-        y_ -= offset;
-        direction_ = Direction::down;
-        break;
-    }
-  }
-
-  void moveForward(int offset) {
-    std::cout << "Move forward call " << std::endl;
-    switch (direction_) {
-      case Direction::up:
-        y_ += offset;
-        break;
-      case Direction::right:
-        x_ += offset;
-        break;
-      case Direction::down:
-        y_ -= offset;
-        break;
-      case Direction::left:
-        x_ -= offset;
-        break;
-    }
-  }
-
-  std::pair<int, int> getPosition() const { return std::make_pair(x_, y_); }
-  Direction getDirection() const { return direction_; }
-
-  private:
-  int x_;
-  int y_;
+struct FrogActor {
+  int x_ = 0;
+  int y_ = 0;
   Direction direction_ = Direction::up;
 };
 
@@ -94,9 +22,29 @@ class MoveRightCommand : public Command {
   int offset_ = 0;
 
   public:
-  MoveRightCommand(){};
   MoveRightCommand(int offset) : offset_{offset} {};
-  void execute(FrogActor& frogActor) { frogActor.moveRight(offset_); }
+
+  void execute(FrogActor& frogActor) {
+    std::cout << "Move right call " << std::endl;
+    switch (frogActor.direction_) {
+      case Direction::up:
+        frogActor.x_ += offset_;
+        frogActor.direction_ = Direction::right;
+        break;
+      case Direction::right:
+        frogActor.y_ -= offset_;
+        frogActor.direction_ = Direction::down;
+        break;
+      case Direction::down:
+        frogActor.x_ -= offset_;
+        frogActor.direction_ = Direction::left;
+        break;
+      case Direction::left:
+        frogActor.y_ += offset_;
+        frogActor.direction_ = Direction::up;
+        break;
+    }
+  }
 };
 
 class MoveLeftCommand : public Command {
@@ -104,9 +52,30 @@ class MoveLeftCommand : public Command {
   int offset_ = 0;
 
   public:
-  MoveLeftCommand(){};
   MoveLeftCommand(int offset) : offset_{offset} {};
-  void execute(FrogActor& frogActor) { frogActor.moveLeft(offset_); }
+
+  void execute(FrogActor& frogActor) {
+    std::cout << "Move left call " << std::endl;
+    switch (frogActor.direction_) {
+      case Direction::up:
+        frogActor.x_ -= offset_;
+        frogActor.direction_ = Direction::left;
+        break;
+      case Direction::right:
+        frogActor.y_ += offset_;
+        frogActor.direction_ = Direction::up;
+        break;
+      case Direction::down:
+        frogActor.x_ += offset_;
+        frogActor.direction_ = Direction::right;
+        break;
+      case Direction::left:
+        frogActor.y_ -= offset_;
+        frogActor.direction_ = Direction::down;
+        break;
+    }
+  }
+
 };
 
 class MoveForwardCommand : public Command {
@@ -114,22 +83,40 @@ class MoveForwardCommand : public Command {
   int offset_ = 0;
 
   public:
-  MoveForwardCommand(){};
   MoveForwardCommand(int offset) : offset_(offset){};
-  void execute(FrogActor& frogActor) { frogActor.moveForward(offset_); }
+
+  void execute(FrogActor& frogActor) {
+    std::cout << "Move forward call " << std::endl;
+    switch (frogActor.direction_) {
+      case Direction::up:
+        frogActor.y_ += offset_;
+        break;
+      case Direction::right:
+        frogActor.x_ += offset_;
+        break;
+      case Direction::down:
+        frogActor.y_ -= offset_;
+        break;
+      case Direction::left:
+        frogActor.x_ -= offset_;
+        break;
+    }
+  }
 };
 
 class GetPositionCommand : public Command {
   public:
   void execute(FrogActor& frogActor) {
-    auto position = frogActor.getPosition();
-    std::cout << "Position: x = " << position.first
-              << " y = " << position.second << std::endl;
-    std::cout << "Direction: " << frogActor.getDirection() << std::endl;
+    auto position = std::make_pair(frogActor.x_, frogActor.y_);
+    std::cout << "Position: " << std::endl
+              << "x = " << position.first << " y = " << position.second
+              << std::endl;
+    std::cout << "Direction: " << frogActor.direction_<< std::endl;
+    std::cout << "==================" << std::endl;
   }
 };
 
-class InputHandler {
+class Runner {
   public:
   std::unique_ptr<Command> handleInput(int input, int offset) {
     switch (input) {
@@ -165,11 +152,12 @@ class InputHandler {
     }
   }
 
-  std::vector<std::unique_ptr<Command>> getCollectedCommands() {
-    return std::move(collectedCommands);
+  void executeCollectedCommadns(FrogActor& frogActor) {
+    for (auto& command : collectedCommands) {
+      command->execute(frogActor);
+      position->execute(frogActor);
+    }
   }
-
-  std::unique_ptr<Command> getPositionCommand() { return std::move(position); }
 
   private:
   std::unique_ptr<Command> position = std::make_unique<GetPositionCommand>();
@@ -198,15 +186,10 @@ class InputHandler {
 
 int main() {
   FrogActor frogActor;
-  InputHandler inputHandler;
+  Runner runner;
   std::cout << "Frogyy started..." << std::endl;
-  std::unique_ptr<Command> positionCommand = inputHandler.getPositionCommand();
-
   std::cout << "===================" << std::endl;
-  inputHandler.collectCommands();
-  for (auto& command : inputHandler.getCollectedCommands()) {
-    command->execute(frogActor);
-    positionCommand->execute(frogActor);
-  }
+  runner.collectCommands();
+  runner.executeCollectedCommadns(frogActor);
   return 0;
 }
