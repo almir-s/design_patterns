@@ -8,4 +8,5 @@ project_dep = declare_dependency(sources: source_dir, dependencies: [boost_dep])
 
 
 subdir('command')
+subdir('flyweight')
 executable('main', sources: ['src/main.cpp'], dependencies: [project_dep])
