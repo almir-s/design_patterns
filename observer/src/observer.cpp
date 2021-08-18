@@ -58,7 +58,7 @@ class Subject {
       observer->onNotify(entity, event);
     }
   }
-  // void removeObserver(Observer observer) {}
+  void removeObserver(Observer* observer) {}
 };
 
 class Game {
