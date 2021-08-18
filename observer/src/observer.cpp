@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 
+#define MONSTER_KILLED  1
+
 struct Entity {
   std::string title;
 };
@@ -24,8 +26,8 @@ class AchievmentObserver : public Observer {
   public:
   void onNotify(Entity entity, Event event) {
     switch (event.id) {
-      case 1:
-        std::cout << "MonstersKiller bage earned!!" << std::endl;
+      case MONSTER_KILLED:
+        std::cout << "MonstersKiller badge earned!!" << std::endl;
         break;
     }
   }
@@ -36,7 +38,7 @@ class SoundObserver : public Observer {
   public:
   void onNotify(Entity entity, Event event) {
     switch (event.id) {
-      case 1:
+      case MONSTER_KILLED:
         std::cout << "Apply monster kill sound" << std::endl;
         break;
     }
@@ -67,7 +69,7 @@ class Game {
 
   public:
   Game(Subject& subject) : subject_(subject){};
-  void winTrophy(Entity entity, Event event) { subject_.notify(entity, event); }
+  void killMonster(Entity entity, Event event) { subject_.notify(entity, event); }
 
   void completeLevel(Entity entity, Event event) {
     subject_.notify(entity, event);
@@ -84,5 +86,5 @@ int main() {
       std::make_unique<AchievmentObserver>(AchievmentObserver()));
   subject.addObserver(std::make_unique<SoundObserver>(SoundObserver()));
   Game game(subject);
-  game.winTrophy(entity, event);
+  game.killMonster(entity, event);
 }
