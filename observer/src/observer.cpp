@@ -2,29 +2,29 @@
 #include <vector>
 #include <memory>
 
-#define MONSTER_KILLED  1
+#define MONSTER_KILLED 1
 
 struct Entity {
   std::string title;
 };
 
 struct Event {
-  u_int32_t id;
+  uint32_t id;
   std::string title;
 };
 
 class Observer {
   private:
-  u_int32_t id;
+  uint32_t id;
 
   public:
   virtual void onNotify(Entity entity, Event event) = 0;
-  virtual ~Observer() {}
+  virtual ~Observer() = default;
 };
 
 class AchievmentObserver : public Observer {
   public:
-  void onNotify(Entity entity, Event event) {
+  void onNotify(Entity entity, Event event) override {
     switch (event.id) {
       case MONSTER_KILLED:
         std::cout << "MonstersKiller badge earned!!" << std::endl;
@@ -36,7 +36,7 @@ class AchievmentObserver : public Observer {
 
 class SoundObserver : public Observer {
   public:
-  void onNotify(Entity entity, Event event) {
+  void onNotify(Entity entity, Event event) override {
     switch (event.id) {
       case MONSTER_KILLED:
         std::cout << "Apply monster kill sound" << std::endl;
@@ -48,12 +48,10 @@ class SoundObserver : public Observer {
 
 class Subject {
   private:
-  std::vector<std::unique_ptr<Observer>> observers_;
+  std::vector<Observer*> observers_;
 
   public:
-  void addObserver(std::unique_ptr<Observer> observer) {
-    observers_.push_back(std::move(observer));
-  }
+  void addObserver(Observer* observer) { observers_.push_back(observer); }
 
   void notify(Entity entity, Event event) {
     for (auto& observer : observers_) {
@@ -69,7 +67,9 @@ class Game {
 
   public:
   Game(Subject& subject) : subject_(subject){};
-  void killMonster(Entity entity, Event event) { subject_.notify(entity, event); }
+  void killMonster(Entity entity, Event event) {
+    subject_.notify(entity, event);
+  }
 
   void completeLevel(Entity entity, Event event) {
     subject_.notify(entity, event);
@@ -82,9 +82,10 @@ int main() {
   Entity entity;
   Event event{1, "KillMonster"};
   Subject subject;
-  subject.addObserver(
-      std::make_unique<AchievmentObserver>(AchievmentObserver()));
-  subject.addObserver(std::make_unique<SoundObserver>(SoundObserver()));
+  AchievmentObserver achievement;
+  SoundObserver sound;
+  subject.addObserver(&achievement);
+  subject.addObserver(&sound);
   Game game(subject);
   game.killMonster(entity, event);
 }
