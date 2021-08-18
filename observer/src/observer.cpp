@@ -51,14 +51,14 @@ class Subject {
   std::vector<Observer*> observers_;
 
   public:
-  void addObserver(Observer* observer) { observers_.push_back(observer); }
+  void add(Observer* observer) { observers_.push_back(observer); }
 
   void notify(Entity entity, Event event) {
     for (auto& observer : observers_) {
       observer->onNotify(entity, event);
     }
   }
-  void removeObserver(Observer* observer) {}
+  void remove(Observer* observer) {}
 };
 
 class Game {
@@ -84,8 +84,8 @@ int main() {
   Subject subject;
   AchievmentObserver achievement;
   SoundObserver sound;
-  subject.addObserver(&achievement);
-  subject.addObserver(&sound);
+  subject.add(&achievement);
+  subject.add(&sound);
   Game game(subject);
   game.killMonster(entity, event);
 }
