@@ -10,7 +10,7 @@ class GameActor {
 
 class Command {
   public:
-  virtual ~Command() { std::cout << "delete" << std::endl;}
+  virtual ~Command() {}
   virtual void execute(GameActor&) = 0;
 };
 
@@ -32,7 +32,6 @@ class RunCommand : public Command {
 class InputHandler {
   public:
   ~InputHandler() {
-    std::cout << "Destruct input handler " << std::endl;
   }
 
   std::unique_ptr<Command> handleInput(int input) {
