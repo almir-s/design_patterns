@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "audio_player.hpp"
+#include "state.hpp"
 
 PlayingState::PlayingState(AudioPlayer* player) { player_ = player; }
 
